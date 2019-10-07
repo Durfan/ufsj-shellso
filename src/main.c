@@ -1,147 +1,65 @@
+#include "./includes/main.h"
 
-#define _GNU_SOURCE
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <assert.h>
-
-#include <limits.h>
+#include <stdint.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 
-#define LSH_TOK_BUFSIZE 64
-#define LSH_TOK_DELIM " \t\r\n\a"
+char *cmdline(void) {
 
-void initshell(void) {
-	system("clear");
-	printf("  _____ _    _ ______ _      _      ____   _____    ___  __\n");
-	printf(" / ____| |  | |  ____| |    | |    / __ \\ / ____|  / _ \\/_ |\n");
-	printf("| (___ | |__| | |__  | |    | |   | |  | | (___   | | | || | __ _\n");
-	printf(" \\___ \\|  __  |  __| | |    | |   | |  | |\\___ \\  | | | || |/ _` |\n");
-	printf(" ____) | |  | | |____| |____| |___| |__| |____) | | |_| || | (_| |\n");
-	printf("|_____/|_|  |_|______|______|______\\____/|_____/   \\___(_)_|\\__,_|\n\n");                                                
-}
-
-void history(char* input) {
-	if (!strlen(input))
-		return;
-	FILE *fp = fopen("history.txt", "a");
-	assert(fp);
-	fprintf(fp,"%s",input);
-	fclose(fp);
-}
-
-char *currdir(void) {
-	static char cwd[PATH_MAX];
-	if (getcwd(cwd, sizeof(cwd)) == NULL)
-		return NULL;
-	return cwd;
-}
-
-char *prompt(void) {
-	static char prompt[1024];
-	char username[LOGIN_NAME_MAX];
-	char hostname[HOST_NAME_MAX];
-	
-	getlogin_r(username, LOGIN_NAME_MAX);
-	gethostname(hostname, HOST_NAME_MAX);
-	
-	strcpy(prompt,"[");
-	strcat(prompt,username);
-	strcat(prompt,"@");
-	strcat(prompt,hostname);
-	strcat(prompt,"]$ ");
-
-	return prompt;
-}
-
-char *inputline(void) {
 	char *line = NULL;
+	size_t len = 0;
+	ssize_t read = getline(&line,&len,stdin);
 
-	size_t bufsize;
-	ssize_t read = getline(&line,&bufsize,stdin);
 	if (read < 0) {
-        return NULL;
-    }
+		free(line);
+		return NULL;
+	}
+	else if (read > 512 ) {
+		free(line);
+		error(0,ENOBUFS,CRED"buffer nao cresce em arvore"CRSET);
+		return NULL;
+	}
+
 	return line;
 }
 
-int lsh_launch(char **args) {
-	pid_t pid, wpid;
-	int status;
+char **tokenizer(char *cmd) {
+	int pos = 0;
+	char **tokens = malloc(512 * sizeof(char));
 
-	pid = fork();
-	if (pid == 0) {
-		if (execvp(args[0], args) == -1) {
-			perror("lsh");
-		}
-		exit(EXIT_FAILURE);
-	} else if (pid < 0) {
-		perror("lsh");
-	}
-	else {
-		do {
-			wpid = waitpid(pid, &status, WUNTRACED);
-		} while (!WIFEXITED(status) && !WIFSIGNALED(status));
-  	}
-	return 1;
-}
-
-int lsh_execute(char **args) {
-	if (args[0] == NULL)
-		return 1;
-	return lsh_launch(args);
-}
-
-char **lsh_split_line(char *line) {
-	int bufsize = LSH_TOK_BUFSIZE, position = 0;
-	char **tokens = malloc(bufsize * sizeof(char*));
-	char *token;
-
-	if (!tokens) {
-		fprintf(stderr, "lsh: allocation error\n");
-		exit(EXIT_FAILURE);
+	if (tokens == NULL) {
+		free(cmd);
+		error_at_line(EXIT_FAILURE,errno,__FILE__,__LINE__-3,__func__);
 	}
 
-	token = strtok(line, LSH_TOK_DELIM);
+	char *token = strtok(cmd, " \n");
 	while (token != NULL) {
-		tokens[position] = token;
-		position++;
 
-		if (position >= bufsize) {
-			bufsize += LSH_TOK_BUFSIZE;
-			tokens = realloc(tokens, bufsize * sizeof(char*));
-			if (!tokens) {
-				fprintf(stderr, "lsh: allocation error\n");
-				exit(EXIT_FAILURE);
-			}
+		if (strlen(token) > 64) {
+			error(0,EINVAL,token);
+			return NULL;
 		}
 
-		token = strtok(NULL, LSH_TOK_DELIM);
+		tokens[pos++] = token;
+		token = strtok(NULL," \n");
 	}
-	tokens[position] = NULL;
+	tokens[pos] = NULL;
 
 	return tokens;
 }
 
 void commandLoop(void) {
-	char *input = NULL;
+	char *cmd = NULL;
 	char **args;
-  	int status;
 
 	do {
 		printf("\u250C\u2574%s\n", currdir());
 		printf("\u2514\u2574%s", prompt());
-		input = inputline();
-		args = lsh_split_line(input);
-		status = lsh_execute(args);
-		history(input);
-
-		free(input);
+		cmd = cmdline();
+		args = tokenizer(cmd);
 		free(args);
-	} while (1);
+		free(cmd);
+	} while (cmd != NULL);
 }
 
 
