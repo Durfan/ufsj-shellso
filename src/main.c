@@ -4,6 +4,13 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
+void tknview(char **cmd) {
+	for (int i=0; cmd[i] != NULL; i++) {
+		printf(" \u25BA  %02d %02ld", i, strlen(cmd[i]));
+		printf(" '%s'\n", cmd[i]);
+	}
+}
+
 char *cmdline(void) {
 
 	char *line = NULL;
@@ -44,6 +51,10 @@ char **tokenizer(char *cmd) {
 		token = strtok(NULL," \n");
 	}
 	tokens[pos] = NULL;
+
+	#ifdef DEBUG
+	tknview(tokens);
+	#endif
 
 	return tokens;
 }
