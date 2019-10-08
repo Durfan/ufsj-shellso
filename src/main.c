@@ -4,52 +4,6 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-typedef struct cmd_t {
-	int buffer;
-	int narg;
-	char **args;
-} CMD;
-
-typedef struct cmdtable_t {
-	int availscmd;	// Numero de comandos simples disponiveis
-	int ncmd;		// Numero de comandos simples
-	struct cmd_t **cmds;
-	char *outFile;
-	char *inputFile;
-} CMDtable;
-
-
-CMDtable *iniTable(void) {
-	CMDtable *cmdtable = malloc(sizeof(CMDtable));
-
-	cmdtable->availscmd = 0;
-	cmdtable->ncmd = 0;
-	cmdtable->cmds = NULL;
-
-	return cmdtable;
-}
-
-CMD *iniCMD(void) {
-	CMD *cmd = malloc(sizeof(CMD));
-
-	cmd->buffer = 0;
-	cmd->narg = 0;
-	cmd->args = NULL;
-
-	return cmd;
-}
-
-void insArg(CMD *cmd, char *arg) {
-	if (cmd->args == NULL) {
-		cmd->buffer = strlen(arg)+1;
-		cmd->args = malloc(cmd->buffer * sizeof(char));
-		cmd->args[cmd->narg] = arg;
-	}
-
-	cmd->buffer += strlen(arg)+1;
-	cmd->args = realloc(cmd->args, cmd->buffer * sizeof(char));
-	cmd->args[cmd->narg++] = arg;
-}
 
 /* void tknview(char **cmd) {
 	for (int i=0; cmd[i] != NULL; i++) {
@@ -125,38 +79,37 @@ int main(void) {
 
 	CMDtable *cmdtable = iniTable();
 
-	cmdtable->ncmd = 4;
-	cmdtable->cmds = malloc(cmdtable->ncmd * sizeof(CMD));
-	cmdtable->cmds[0] = iniCMD();
-	cmdtable->cmds[1] = iniCMD();
-	cmdtable->cmds[2] = iniCMD();
-	cmdtable->cmds[3] = iniCMD();
-
+	insCmd(cmdtable);
+	insCmd(cmdtable);
+	insCmd(cmdtable);
+	insCmd(cmdtable);
+	
+	printf(" ncmds : %d\n", cmdtable->ncmd);
 	insArg(cmdtable->cmds[0],"arg1a");
 	insArg(cmdtable->cmds[0],"arg1b");
+	insArg(cmdtable->cmds[0],NULL);
 	insArg(cmdtable->cmds[1],"arg2a");
 	insArg(cmdtable->cmds[1],"arg2b");
 	insArg(cmdtable->cmds[1],"arg2c");
 	insArg(cmdtable->cmds[1],"arg2d");
+	insArg(cmdtable->cmds[1],NULL);
 	insArg(cmdtable->cmds[2],"arg3a");
 	insArg(cmdtable->cmds[2],"arg3b");
 	insArg(cmdtable->cmds[2],"arg3c");
+	insArg(cmdtable->cmds[2],NULL);
 	insArg(cmdtable->cmds[3],"arg4a");
+	insArg(cmdtable->cmds[3],NULL);
 
 	for (int i=0; i < cmdtable->ncmd; i++) {
+		printf(" nargs : %d ->", cmdtable->cmds[i]->narg);
 		for (int j=0; j < cmdtable->cmds[i]->narg; j++)
 			printf(" %s", cmdtable->cmds[i]->args[j]);
+			
 		printf("\n");
 	}
 
-	free(cmdtable->cmds[0]->args);
-	free(cmdtable->cmds[1]->args);
-	free(cmdtable->cmds[2]->args);
-	free(cmdtable->cmds[3]->args);
-	free(cmdtable->cmds[0]);
-	free(cmdtable->cmds[1]);
-	free(cmdtable->cmds[2]);
-	free(cmdtable->cmds[3]);
+	clrArg(cmdtable);
+
 	free(cmdtable);
 
 /* 	initshell();
