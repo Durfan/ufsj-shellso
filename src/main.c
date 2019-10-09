@@ -79,8 +79,6 @@ void commandLoop(void) {
 
 int main(void) {
 
-	initshell();
-
 	CMDtable *cmdtable = iniTable();
 
 	insCmd(cmdtable);
