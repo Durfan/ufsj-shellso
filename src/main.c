@@ -10,7 +10,7 @@
 		printf(" \u25BA  %02d %02ld", i, strlen(cmd[i]));
 		printf(" '%s'\n", cmd[i]);
 	}
-}
+} 
 
 char *cmdline(void) {
 
