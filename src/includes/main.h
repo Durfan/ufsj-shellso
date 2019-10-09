@@ -14,5 +14,6 @@
 #include <error.h>
 
 #include "prompt.h"
+#include "cmdtable.h"
 
 #endif // _MAIN_H

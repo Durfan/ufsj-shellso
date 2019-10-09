@@ -4,12 +4,11 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-void tknview(char ***cmd) {
+
+ void tknview(char **cmd) {
 	for (int i=0; cmd[i] != NULL; i++) {
-		for (int j=0; cmd[i][j] != NULL; j++){
-			printf(" \u25BA  %02d %02ld", i, strlen(cmd[i][j]));
-			printf(" '%s'\n", cmd[i][j]);
-		}
+		printf(" \u25BA  %02d %02ld", i, strlen(cmd[i]));
+		printf(" '%s'\n", cmd[i]);
 	}
 }
 
@@ -32,88 +31,79 @@ char *cmdline(void) {
 	return line;
 }
 
-char ***tokenizer(char *cmd) {
-	int pos = 0;
-	int num_comand = 1;
-	char ***tokens = (char ***) malloc (sizeof(char **));
-	tokens[0] = malloc(512 * sizeof(char));
-
-	if (tokens[0] == NULL) {
-		free(cmd);
-		error_at_line(EXIT_FAILURE,errno,__FILE__,__LINE__-3,__func__);
-	}
-
-	char *token = strtok(cmd, " \n");
+CMDtable *tokenizer(char *line) {
+	int position = 0;
+	CMDtable *cmdtable = iniTable();
+	char *token;
+	token = strtok(line, " \n");
+	insCmd(cmdtable);
 	while (token != NULL) {
-
-		if (strlen(token) > 64) {
-			error(0,EINVAL,token);
-			return NULL;
-		}
-		
 		if(!strcmp(token, "|")){
-			token = NULL;
-			tokens[num_comand-1][pos++] = token;
-			pos = 0;
-			num_comand++;
-			tokens = (char ***) realloc (tokens,(num_comand) * sizeof(char**));
-		}else {
-			tokens[num_comand-1][pos++] = token;
+			insArg(cmdtable->cmds[position],NULL);
+			position++;
+			insCmd(cmdtable);
 		}
-		token = strtok(NULL," \n");
-	}
-
-	tokens[num_comand-1][pos] = NULL;
-	tokens[num_comand] = NULL;
-	for (int j =0; tokens[j] != NULL; j++)
-		for(int i =0; tokens[0][i] != NULL;i++){
-			printf("%s %d %d\n", tokens[j][i], j, i);
+		else {
+			insArg(cmdtable->cmds[position],token);
 		}
-	printf("%s aqui\n", tokens[1][0]);
-	free(tokens[0]);
-	#ifdef DEBUG
-	tknview(tokens);
-	#endif
-
-	return tokens;
-}
-
-void free_args(char ***args){
-	int  i;
-	for(i = 0; args[i] != NULL; i++){
-		for(int j; args[i][j] != NULL; j++){
-			free(args[i][j]);
-		}	
-		free(args[i]);
+		token = strtok(NULL, " \n");
 	}
-	free(args);
+	insArg(cmdtable->cmds[position],NULL);
+	free(token);
+	return cmdtable;
 }
 
 void commandLoop(void) {
 	char *cmd = NULL;
-	char ***args;
-
+	
 	do {
 		printf("\u250C\u2574%s\n", currdir());
 		printf("\u2514\u2574%s", prompt());
 		cmd = cmdline();
-		args = tokenizer(cmd);
-		//for(int i = 0; args[i] != NULL; i++){
-		//	for(int j = 0; args[i][j] != NULL; j++){
-	//			printf("%s\n", args[i][j]);
-	//		}
-	//	}
-		
-		//free_args(args);
-		//free(cmd);
+		CMDtable *cmdtable = tokenizer(cmd);
+		for (int i=0; i < cmdtable->ncmd; i++) {
+			printf(" nargs : %d ->", cmdtable->cmds[i]->narg);
+			for (int j=0; j < cmdtable->cmds[i]->narg; j++)
+				printf(" %s", cmdtable->cmds[i]->args[j]);
+				
+			printf("\n");
+		}
+
+		clrArg(cmdtable);
+
+		free(cmdtable);
+		free(cmd);
 	} while (cmd != NULL);
 }
 
 
 int main(void) {
 
-	initshell();
-	commandLoop();
+	/*insCmd(cmdtable);
+	insCmd(cmdtable);
+	insCmd(cmdtable);
+	insCmd(cmdtable);
+	
+	printf(" ncmds : %d\n", cmdtable->ncmd);
+	insArg(cmdtable->cmds[0],"arg1a");
+	insArg(cmdtable->cmds[0],"arg1b");
+	insArg(cmdtable->cmds[0],NULL);
+	insArg(cmdtable->cmds[1],"arg2a");
+	insArg(cmdtable->cmds[1],"arg2b");
+	insArg(cmdtable->cmds[1],"arg2c");
+	insArg(cmdtable->cmds[1],"arg2d");
+	insArg(cmdtable->cmds[1],NULL);
+	insArg(cmdtable->cmds[2],"arg3a");
+	insArg(cmdtable->cmds[2],"arg3b");
+	insArg(cmdtable->cmds[2],"arg3c");
+	insArg(cmdtable->cmds[2],NULL);
+	insArg(cmdtable->cmds[3],"arg4a");
+	insArg(cmdtable->cmds[3],NULL);
+	*/
+	
+
+ 	//initshell();
+	commandLoop(); 
 
 	return EXIT_SUCCESS;
 }
