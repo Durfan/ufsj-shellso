@@ -38,12 +38,28 @@ CMDtable *tokenizer(char *line) {
 	token = strtok(line, " \n");
 	insCmd(cmdtable);
 	while (token != NULL) {
-		if(!strcmp(token, "|")){
+		
+		if(!strcmp(token, "<=")){
+			token = strtok(NULL, " \n");//verificar depoisse token == NULL
+			cmdtable->cmds[position]->input = open(token, O_RDONLY);
+			if(cmdtable->cmds[position]->input == -1)
+				printf("File error\n");
+			
+		}
+		else if(!strcmp(token, ">=")){
+			token = strtok(NULL, " \n");//verificar depoisse token == NULL
+			mode_t permission = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
+			cmdtable->cmds[position]->output = open(token, O_WRONLY | O_CREAT, permission);
+			if(cmdtable->cmds[position]->input == -1)
+				printf("File error\n");
+			
+		}
+		else if(!strcmp(token, "|")){
 			insArg(cmdtable->cmds[position],NULL);
 			position++;
 			insCmd(cmdtable);
 		}
-		else {
+		else{
 			insArg(cmdtable->cmds[position],token);
 		}
 		token = strtok(NULL, " \n");
@@ -55,7 +71,6 @@ CMDtable *tokenizer(char *line) {
 
 void commandLoop(void) {
 	char *cmd = NULL;
-	
 	do {
 		printf("\u250C\u2574%s\n", currdir());
 		printf("\u2514\u2574%s", prompt());
@@ -68,7 +83,7 @@ void commandLoop(void) {
 				
 			printf("\n");
 		}
-
+		pipeline(cmdtable);
 		clrArg(cmdtable);
 
 		free(cmdtable);

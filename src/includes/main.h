@@ -12,8 +12,11 @@
 #include <string.h>
 #include <errno.h>
 #include <error.h>
+#include <sys/wait.h>
+#include <fcntl.h>
 
 #include "prompt.h"
 #include "cmdtable.h"
+#include "pipes.h"
 
 #endif // _MAIN_H

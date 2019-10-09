@@ -5,6 +5,8 @@ typedef struct cmd_t {
 	int buffer;
 	int narg;
 	char **args;
+	int input;
+	int output;
 } CMD;
 
 typedef struct cmdtable_t {

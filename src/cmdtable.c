@@ -38,8 +38,11 @@ void insCmd(CMDtable *table) {
 void insArg(CMD *cmd, char *arg) {
 	cmd->buffer += sizeof(char*);
 
-	if (cmd->args == NULL)
+	if (cmd->args == NULL){
 		cmd->args = malloc(cmd->buffer);
+		cmd->input = 0;
+		cmd->output = 0;
+	}
 	else
 		cmd->args = realloc(cmd->args, cmd->buffer);
 
