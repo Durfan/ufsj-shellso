@@ -2,7 +2,7 @@
 #include <limits.h>
 
 
-char *prompt(void) {
+void prompt(void) {
 	static char prompt[1024];
 	char username[LOGIN_NAME_MAX];
 	char hostname[HOST_NAME_MAX];
@@ -16,14 +16,15 @@ char *prompt(void) {
 	strcat(prompt,hostname);
 	strcat(prompt,"]$ ");
 
-	return prompt;
+	printf("\u2514\u2574%s", prompt);
 }
 
-char *currdir(void) {
+void currdir(void) {
 	static char cwd[PATH_MAX];
 	if (getcwd(cwd, sizeof(cwd)) == NULL)
-		return NULL;
-	return cwd;
+		return;
+
+	printf("\u250C\u2574%s\n", cwd);
 }
 
 void initshell(void) {

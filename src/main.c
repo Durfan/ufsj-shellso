@@ -5,11 +5,12 @@
 #include <sys/wait.h>
 
 
-/*
-void tknview(char **cmd) {
-	for (int i=0; cmd[i] != NULL; i++) {
-		printf(" \u25BA  %02d %02ld", i, strlen(cmd[i]));
-		printf(" '%s'\n", cmd[i]);
+void tknview(CMDtable *table) {
+	for (int i=0; i < table->ncmd; i++) {
+		printf(" \u25BA nargs : %d ->", table->cmds[i]->narg);
+		for (int j=0; j < table->cmds[i]->narg; j++)
+			printf(" %s", table->cmds[i]->args[j]);
+		printf("\n");
 	}
 }
 
@@ -32,92 +33,57 @@ char *cmdline(void) {
 	return line;
 }
 
-char **tokenizer(char *cmd) {
-	int pos = 0;
-	char **tokens = malloc(512 * sizeof(char));
-
-	if (tokens == NULL) {
-		free(cmd);
-		error_at_line(EXIT_FAILURE,errno,__FILE__,__LINE__-3,__func__);
-	}
+void tokenizer(CMDtable *table, char *cmd) {
+	int position = 0;
 
 	char *token = strtok(cmd, " \n");
+	insCmd(table);
+
 	while (token != NULL) {
 
-		if (strlen(token) > 64) {
-			error(0,EINVAL,token);
-			return NULL;
+		if (!strcmp(token,"|")) {
+			insArg(table->cmds[position],NULL);
+			position++;
+			insCmd(table);
 		}
+		else
+			insArg(table->cmds[position],token);
 
-		tokens[pos++] = token;
-		token = strtok(NULL," \n");
+		token = strtok(NULL, " \n");
 	}
-	tokens[pos] = NULL;
 
-	#ifdef DEBUG
-	tknview(tokens);
-	#endif
-
-	return tokens;
+	insArg(table->cmds[position],NULL);
+	free(token);
 }
 
 void commandLoop(void) {
 	char *cmd = NULL;
-	char **args;
-
+	CMDtable *cmdtable = iniTable();
+	
 	do {
-		printf("\u250C\u2574%s\n", currdir());
-		printf("\u2514\u2574%s", prompt());
+
+		currdir();
+		prompt();
 		cmd = cmdline();
-		args = tokenizer(cmd);
-		free(args);
+		tokenizer(cmdtable,cmd);
+
+		#ifdef DEBUG
+		tknview(cmdtable);
+		#endif
+
+		clrArg(cmdtable);
 		free(cmd);
+
 	} while (cmd != NULL);
+
+	free(cmd);
+	free(cmdtable);
 }
-*/
 
 
 int main(void) {
 
-	CMDtable *cmdtable = iniTable();
-
-	insCmd(cmdtable);
-	insCmd(cmdtable);
-	insCmd(cmdtable);
-	insCmd(cmdtable);
-	
-	printf(" ncmds : %d\n", cmdtable->ncmd);
-	insArg(cmdtable->cmds[0],"arg1a");
-	insArg(cmdtable->cmds[0],"arg1b");
-	insArg(cmdtable->cmds[0],NULL);
-	insArg(cmdtable->cmds[1],"arg2a");
-	insArg(cmdtable->cmds[1],"arg2b");
-	insArg(cmdtable->cmds[1],"arg2c");
-	insArg(cmdtable->cmds[1],"arg2d");
-	insArg(cmdtable->cmds[1],NULL);
-	insArg(cmdtable->cmds[2],"arg3a");
-	insArg(cmdtable->cmds[2],"arg3b");
-	insArg(cmdtable->cmds[2],"arg3c");
-	insArg(cmdtable->cmds[2],NULL);
-	insArg(cmdtable->cmds[3],"arg4a");
-	insArg(cmdtable->cmds[3],NULL);
-
-	for (int i=0; i < cmdtable->ncmd; i++) {
-		printf(" nargs : %d ->", cmdtable->cmds[i]->narg);
-		for (int j=0; j < cmdtable->cmds[i]->narg; j++)
-			printf(" %s", cmdtable->cmds[i]->args[j]);
-			
-		printf("\n");
-	}
-
-	clrArg(cmdtable);
-
-	free(cmdtable);
-
-/*
-	initshell();
 	commandLoop();
-*/
 
 	return EXIT_SUCCESS;
 }
