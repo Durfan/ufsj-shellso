@@ -114,8 +114,10 @@ int main(void) {
 
 	free(cmdtable);
 
-/* 	initshell();
-	commandLoop(); */
+/*
+	initshell();
+	commandLoop();
+*/
 
 	return EXIT_SUCCESS;
 }
