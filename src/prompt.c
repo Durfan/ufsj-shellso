@@ -28,7 +28,6 @@ void currdir(void) {
 
 void initshell(void) {
 	system("clear");
-	printf("%s", PROGNAME);
-	printf(" %d.%dv ", MAJORVER, MINORVER);
-	printf("SOTP1\n");
+	printf("%s/SOTP1", PROGNAME);
+	printf(" %d.%dv\n", MAJORVER, MINORVER);
 }

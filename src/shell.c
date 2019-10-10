@@ -3,7 +3,7 @@
 #include <sys/wait.h>
 #include <fcntl.h>
 
-char *cmdline(void) {
+char *getinput(void) {
 
 	char *line = NULL;
 	size_t len = 0;
@@ -21,38 +21,37 @@ char *cmdline(void) {
 
 void commandLoop(void) {
 	char *cmd = NULL;
-	Table *cmdtable;
+	Table *table;
 	
 	do {
 		currdir();
 		prompt();
 
-		cmd = cmdline();
-		cmdtable = tokenizer(cmd);
+		table = iniTable();
+		cmd = getinput();
+		tkenizer(table,cmd);
 
 		#ifdef DEBUG
-		toknview(cmdtable);
+		toknview(table);
 		#endif
 
-		pipeline(cmdtable);
+		pipeline(table);
 
-		clrArg(cmdtable);
-		free(cmdtable);
+		clrArg(table);
 		free(cmd);
 
 	} while (!feof(stdin));
 }
 
-Table *tokenizer(char *line) {
-	int i = 0;
+void tkenizer(Table *table, char *line) {
 
-	Table *table = iniTable();
 	char *token = strtok(line," \n");
 	insCmd(table);
 
+	int i = 0;
 	while (token != NULL) {
 
-		if (!strcmp(token,"<=")) {
+		if (strcmp(token,"<=") == 0) {
 			token = strtok(NULL, " \n"); //verificar depois se token == NULL
 			table->cmd[i]->input = open(token, O_RDONLY);
 
@@ -60,7 +59,7 @@ Table *tokenizer(char *line) {
 				error(0,errno,__func__);
 		}
 
-		else if (!strcmp(token,"=>")) {
+		else if (strcmp(token,"=>") == 0) {
 			token = strtok(NULL, " \n"); //verificar depois se token == NULL
 			mode_t permission = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
 			table->cmd[i]->output = open(token, O_WRONLY | O_CREAT, permission);
@@ -69,7 +68,7 @@ Table *tokenizer(char *line) {
 				error(0,errno,__func__);
 		}
 
-		else if (!strcmp(token,"|")) {
+		else if (strcmp(token,"|") == 0) {
 			insArg(table->cmd[i++],NULL);
 			insCmd(table);
 		}
@@ -81,8 +80,6 @@ Table *tokenizer(char *line) {
 	}
 
 	insArg(table->cmd[i],NULL);
-
-	return table;
 }
 
 void pipeline(Table *table) {

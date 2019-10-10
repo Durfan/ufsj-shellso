@@ -1,6 +1,5 @@
 #include "./includes/main.h"
 
-
 Table *iniTable(void) {
 	Table *table = malloc(sizeof(Table));
 	if (table == NULL)
@@ -61,4 +60,5 @@ void clrArg(Table *table) {
 		free(table->cmd[i]);
 	}
 	free(table->cmd);
+	free(table);
 }
