@@ -1,7 +1,6 @@
 #include "./includes/main.h"
 #include <limits.h>
 
-
 void prompt(void) {
 	static char prompt[1024];
 	char username[LOGIN_NAME_MAX];
