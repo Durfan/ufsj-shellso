@@ -7,8 +7,13 @@
 #define MAJORVER 0
 #define MINORVER 6
 
+#define MAXCMD 512
+#define freebuf(buff) \
+	memset(buff,'\0',MAXCMD * sizeof(char));
+
 #define CRED  "\x1b[31m"
-#define CRSET "\x1b[0m"
+#define CGRN "\x1b[32m"
+#define CRST "\x1b[0m"
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -9,10 +9,10 @@ int builtin(Command *cmd) {
 int cmdcd(Command *cmd) {
 
 	if (cmd->argv[1] == NULL)
-		fprintf(stderr, "lsh: expected argument to \"cd\"\n");
+		fprintf(stderr, "teste \"cd\"\n");
 	else {
 		if (chdir(cmd->argv[1]) != 0)
-			perror("lsh");
+			perror("shellos");
 	}
 	
 	return 1;

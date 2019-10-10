@@ -3,48 +3,33 @@
 #include <sys/wait.h>
 #include <fcntl.h>
 
-char *getinput(void) {
-
-	char *line = NULL;
-	size_t len = 0;
-	ssize_t read = getline(&line,&len,stdin);
-
-	if (read < 0)
-		return NULL;
-	else if (read > 512 ) {
-		error(0,ENOBUFS,CRED"buffer nao cresce em arvore"CRSET);
-		return NULL;
-	}
-
-	return line;
-}
-
 void commandLoop(void) {
-	char *cmd = NULL;
+	char cmd[512];
 	Table *table;
 	
 	do {
 		currdir();
 		prompt();
 
-		table = iniTable();
-		cmd = getinput();
-		tkenizer(table,cmd);
+		if (fgets(cmd,MAXCMD,stdin) != NULL) {
+			table = iniTable();
+			tkenizer(table,cmd);
 
-		#ifdef DEBUG
-		toknview(table);
-		#endif
+			#ifdef DEBUG
+			toknview(table);
+			#endif
 
-		pipeline(table);
+			pipeline(table);
 
-		clrArg(table);
-		free(cmd);
+			clrArg(table);
+		}
+
+		freebuf(cmd);
 
 	} while (!feof(stdin));
 }
 
 void tkenizer(Table *table, char *line) {
-
 	char *token = strtok(line," \n");
 	insCmd(table);
 
@@ -58,7 +43,6 @@ void tkenizer(Table *table, char *line) {
 			if (table->cmd[i]->input == -1)
 				error(0,errno,__func__);
 		}
-
 		else if (strcmp(token,"=>") == 0) {
 			token = strtok(NULL, " \n"); //verificar depois se token == NULL
 			mode_t permission = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
@@ -67,12 +51,10 @@ void tkenizer(Table *table, char *line) {
 			if (table->cmd[i]->input == -1)
 				error(0,errno,__func__);
 		}
-
 		else if (strcmp(token,"|") == 0) {
 			insArg(table->cmd[i++],NULL);
 			insCmd(table);
 		}
-
 		else
 			insArg(table->cmd[i],token);
 
@@ -104,14 +86,15 @@ void pipeline(Table *table) {
 			if (table->cmd[i]->output)
 				dup2(table->cmd[i]->output, 1);
 
-			dup2(fdd, 0);
+			dup2(fdd,0);
 
 			if (i != (table->ncmd-1))
 				dup2(fd[1], 1);
 
 			close(fd[0]);
 			if (execvp(table->cmd[i]->argv[0],table->cmd[i]->argv) == -1)
-				error(0,errno,table->cmd[i]->argv[0]);
+				perror("Comando invalido");
+				//error(0,errno,table->cmd[i]->argv[0]);
 			exit(1);
 		}
 
