@@ -1,58 +1,64 @@
 #include "./includes/main.h"
 
 
-CMDtable *iniTable(void) {
-	CMDtable *table = malloc(sizeof(CMDtable));
+Table *iniTable(void) {
+	Table *table = malloc(sizeof(Table));
+	if (table == NULL)
+		error(EXIT_FAILURE,errno,__func__);
 
 	table->buffer = 0;
 	table->ncmd = 0;
-	table->cmds = NULL;
+	table->cmd = NULL;
 
 	return table;
 }
 
-CMD *iniCMD(void) {
-	CMD *cmd = malloc(sizeof(CMD));
+Command *iniCMD(void) {
+	Command *cmd = malloc(sizeof(Command));
+	if (cmd == NULL)
+		error(EXIT_FAILURE,errno,__func__);
 
 	cmd->buffer = 0;
-	cmd->narg = 0;
-	cmd->args = NULL;
+	cmd->argc   = 0;
+	cmd->argv   = NULL;
+	cmd->input  = 0;
+	cmd->output = 0;
 
 	return cmd;
 }
 
-void insCmd(CMDtable *table) {
-	table->buffer += sizeof(CMD*);
+void insCmd(Table *table) {
+	table->buffer += sizeof(Command*);
 
-	if (table->cmds == NULL)
-		table->cmds = malloc(table->buffer);
+	if (table->cmd == NULL)
+		table->cmd = malloc(table->buffer);
 	else
-		table->cmds = realloc(table->cmds, table->buffer);
+		table->cmd = realloc(table->cmd, table->buffer);
 
-	if (table->cmds == NULL)
+	if (table->cmd == NULL)
 		error(EXIT_FAILURE,errno,__func__);
 
-	table->cmds[table->ncmd++] = iniCMD();
+	table->cmd[table->ncmd++] = iniCMD();
 }
 
-void insArg(CMD *cmd, char *arg) {
+void insArg(Command *cmd, char *arg) {
 	cmd->buffer += sizeof(char*);
 
-	if (cmd->args == NULL)
-		cmd->args = malloc(cmd->buffer);
+	if (cmd->argv == NULL)
+		cmd->argv = malloc(cmd->buffer);
 	else
-		cmd->args = realloc(cmd->args, cmd->buffer);
+		cmd->argv = realloc(cmd->argv, cmd->buffer);
 
-	if (cmd->args == NULL)
+	if (cmd->argv == NULL)
 		error(EXIT_FAILURE,errno,__func__);
 
-	cmd->args[cmd->narg++] = arg;
+	cmd->argv[cmd->argc++] = arg;
 }
 
-void clrArg(CMDtable *table) {
+void clrArg(Table *table) {
 	for (int i=0; i < table->ncmd; i++) {
-		free(table->cmds[i]->args);
-		free(table->cmds[i]);
+		free(table->cmd[i]->argv);
+		free(table->cmd[i]);
 	}
-	free(table->cmds);
+	free(table->cmd);
 }

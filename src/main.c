@@ -1,15 +1,11 @@
 #include "./includes/main.h"
 
-#include <stdint.h>
-#include <sys/types.h>
-#include <sys/wait.h>
 
-
-void tknview(CMDtable *table) {
+void tknview(Table *table) {
 	for (int i=0; i < table->ncmd; i++) {
-		printf(" \u25BA nargs : %d ->", table->cmds[i]->narg);
-		for (int j=0; j < table->cmds[i]->narg; j++)
-			printf(" %s", table->cmds[i]->args[j]);
+		printf(" \u25BA argc: %02d \u27A1 ", table->cmd[i]->argc-1);
+		for (int j=0; j < table->cmd[i]->argc; j++)
+			printf(" %s", table->cmd[i]->argv[j]);
 		printf("\n");
 	}
 }
@@ -20,12 +16,9 @@ char *cmdline(void) {
 	size_t len = 0;
 	ssize_t read = getline(&line,&len,stdin);
 
-	if (read < 0) {
-		free(line);
+	if (read < 0)
 		return NULL;
-	}
 	else if (read > 512 ) {
-		free(line);
 		error(0,ENOBUFS,CRED"buffer nao cresce em arvore"CRSET);
 		return NULL;
 	}
@@ -33,57 +26,78 @@ char *cmdline(void) {
 	return line;
 }
 
-void tokenizer(CMDtable *table, char *cmd) {
-	int position = 0;
+Table *tokenizer(char *line) {
+	int i = 0;
 
-	char *token = strtok(cmd, " \n");
+	Table *table = iniTable();
+	char *token = strtok(line," \n");
 	insCmd(table);
 
 	while (token != NULL) {
 
-		if (!strcmp(token,"|")) {
-			insArg(table->cmds[position],NULL);
-			position++;
+		if (!strcmp(token,"<=")) {
+			token = strtok(NULL, " \n"); //verificar depois se token == NULL
+			table->cmd[i]->input = open(token, O_RDONLY);
+
+			if (table->cmd[i]->input == -1)
+				error(0,errno,__func__);
+		}
+
+		else if (!strcmp(token,"=>")) {
+			token = strtok(NULL, " \n"); //verificar depois se token == NULL
+			mode_t permission = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
+			table->cmd[i]->output = open(token, O_WRONLY | O_CREAT, permission);
+
+			if (table->cmd[i]->input == -1)
+				error(0,errno,__func__);
+		}
+
+		else if (!strcmp(token,"|")) {
+			insArg(table->cmd[i++],NULL);
 			insCmd(table);
 		}
-		else
-			insArg(table->cmds[position],token);
 
-		token = strtok(NULL, " \n");
+		else
+			insArg(table->cmd[i],token);
+
+		token = strtok(NULL," \n");
 	}
 
-	insArg(table->cmds[position],NULL);
-	free(token);
+	insArg(table->cmd[i],NULL);
+
+	return table;
 }
 
 void commandLoop(void) {
 	char *cmd = NULL;
-	CMDtable *cmdtable = iniTable();
+	Table *cmdtable;
 	
 	do {
-
 		currdir();
 		prompt();
+
 		cmd = cmdline();
-		tokenizer(cmdtable,cmd);
+		cmdtable = tokenizer(cmd);
 
 		#ifdef DEBUG
 		tknview(cmdtable);
 		#endif
 
+		pipeline(cmdtable);
+
 		clrArg(cmdtable);
+		free(cmdtable);
 		free(cmd);
 
-	} while (cmd != NULL);
-
-	free(cmd);
-	free(cmdtable);
+	} while (!feof(stdin));
 }
 
 
 int main(void) {
 
+	initshell();
 	commandLoop();
 
+	printf("Saindo...\n");
 	return EXIT_SUCCESS;
 }
