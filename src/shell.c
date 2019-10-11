@@ -12,16 +12,17 @@ void commandLoop(void) {
 		prompt();
 
 		if (fgets(cmd,MAXCMD,stdin) != NULL) {
-			table = iniTable();
-			tkenizer(table,cmd);
+			if (strcmp(cmd,"\n") != 0) {
+				table = iniTable();
+				tkenizer(table,cmd);
 
-			#ifdef DEBUG
-			toknview(table);
-			#endif
+				#ifdef DEBUG
+				toknview(table);
+				#endif
 
-			pipeline(table);
-
-			clrArg(table);
+				pipeline(table);
+				clrArg(table);
+			}
 		}
 
 		freebuf(cmd);
@@ -41,7 +42,7 @@ void tkenizer(Table *table, char *line) {
 			table->cmd[i]->input = open(token, O_RDONLY);
 
 			if (table->cmd[i]->input == -1)
-				error(0,errno,__func__);
+				perror(PROGNAME);
 		}
 		else if (strcmp(token,"=>") == 0) {
 			token = strtok(NULL, " \n"); //verificar depois se token == NULL
@@ -49,7 +50,7 @@ void tkenizer(Table *table, char *line) {
 			table->cmd[i]->output = open(token, O_WRONLY | O_CREAT, permission);
 
 			if (table->cmd[i]->input == -1)
-				error(0,errno,__func__);
+				perror(PROGNAME);
 		}
 		else if (strcmp(token,"|") == 0) {
 			insArg(table->cmd[i++],NULL);
@@ -74,7 +75,7 @@ void pipeline(Table *table) {
 		pipe(fd);
 
 		if ((pid = fork()) == -1) {
-			perror("fork");
+			perror(PROGNAME);
 			exit(1);
 		}
 
@@ -93,8 +94,7 @@ void pipeline(Table *table) {
 
 			close(fd[0]);
 			if (execvp(table->cmd[i]->argv[0],table->cmd[i]->argv) == -1)
-				perror("Comando invalido");
-				//error(0,errno,table->cmd[i]->argv[0]);
+				perror(PROGNAME);
 			exit(1);
 		}
 
