@@ -22,7 +22,7 @@ Command *iniCMD(void) {
 	cmd->argv   = NULL;
 	cmd->input  = 0;
 	cmd->output = 0;
-	cmd->and    = 0;
+	cmd->and = 0;
 
 	return cmd;
 }
