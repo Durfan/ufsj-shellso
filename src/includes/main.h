@@ -25,7 +25,6 @@
 
 #include "prompt.h"
 #include "cmdtable.h"
-#include "builtincmd.h"
 #include "shell.h"
 
 #endif // _MAIN_H

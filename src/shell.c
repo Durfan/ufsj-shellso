@@ -4,25 +4,32 @@
 #include <fcntl.h>
 
 void commandLoop(void) {
-	char cmd[512];
+	char cmd[MAXCMD];
 	Table *table;
 	
 	do {
 		currdir();
 		prompt();
 
-		if (fgets(cmd,MAXCMD,stdin) != NULL) {
-			if (strcmp(cmd,"\n") != 0) {
-				table = iniTable();
-				tkenizer(table,cmd);
+		if (fgets(cmd,MAXCMD,stdin) && strcmp(cmd,"\n")) {
+			table = iniTable();
+			tkenizer(table,cmd);
 
-				#ifdef DEBUG
-				toknview(table);
-				#endif
+			#ifdef DEBUG
+			toknview(table);
+			#endif
 
-				pipeline(table);
+			if (!strcmp(table->cmd[0]->argv[0],"fim")) {
 				clrArg(table);
+				printf("Saindo...\n");
+				exit(EXIT_SUCCESS);
 			}
+			else if (!strcmp(table->cmd[0]->argv[0],"cd"))
+				cdcmd(table->cmd[0]);
+			else
+				pipeline(table);
+
+			clrArg(table);
 		}
 
 		freebuf(cmd);
@@ -85,12 +92,12 @@ void pipeline(Table *table) {
 				fdd = table->cmd[i]->input;
 
 			if (table->cmd[i]->output)
-				dup2(table->cmd[i]->output, 1);
+				dup2(table->cmd[i]->output,1);
 
 			dup2(fdd,0);
 
 			if (i != (table->ncmd-1))
-				dup2(fd[1], 1);
+				dup2(fd[1],1);
 
 			close(fd[0]);
 			if (execvp(table->cmd[i]->argv[0],table->cmd[i]->argv) == -1)
@@ -108,9 +115,19 @@ void pipeline(Table *table) {
 
 void toknview(Table *table) {
 	for (int i=0; i < table->ncmd; i++) {
-		printf(" \u25BA argc: %02d \u27A1 ", table->cmd[i]->argc-1);
+		printf("\u25BA argc: %02d \u27A1 ", table->cmd[i]->argc-1);
 		for (int j=0; j < table->cmd[i]->argc; j++)
 			printf(" %s", table->cmd[i]->argv[j]);
 		printf("\n");
 	}
+}
+
+int cdcmd(Command *cmd) {
+
+	if (cmd->argv[1] == NULL)
+		printf(PROGNAME": %s\n", strerror(ENOENT));
+	else if (chdir(cmd->argv[1]) != 0)
+		perror(PROGNAME);
+	
+	return 1;
 }
