@@ -15,21 +15,25 @@ void readfile(char *file) {
 	Table *table;
 
 	while ((read = getline(&line,&len,fp)) != -1) {
+
 		if (strcmp(line,"\n") != 0) {
 			printf("\u25BA $%s", line);
 			table = iniTable();
 			tkenizer(table,line);
+
 			if (!strcmp(table->cmd[0]->argv[0],"fim")) {
 				clrArg(table);
-				printf("\n");
-				exit(EXIT_SUCCESS);
-			} else {
-				pipeline(table);
+				break;
+			}
+			else {
+				warpPipe(table);
 				clrArg(table);
 			}
 		}
 	};
 
+	printf("\n");
+	killzumbies();
 	free(line);
 	fclose(fp);
 }

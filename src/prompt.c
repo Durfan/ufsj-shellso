@@ -1,7 +1,7 @@
 #include "./includes/main.h"
 #include <limits.h>
 
-void prompt(void) {
+void prompt(int status) {
 	static char prompt[1024];
 	char username[LOGIN_NAME_MAX];
 	char hostname[HOST_NAME_MAX];
@@ -13,9 +13,13 @@ void prompt(void) {
 	strcat(prompt,username);
 	strcat(prompt,"@");
 	strcat(prompt,hostname);
-	strcat(prompt,"]$ ");
+	strcat(prompt,"]");
+	if (status)
+		strcat(prompt,CRED BOLD "$" NORM CRST);
+	else
+		strcat(prompt,"$");
 
-	printf("\u2514\u2574%s", prompt);
+	printf("\u2514\u2574%s ", prompt);
 }
 
 void currdir(void) {

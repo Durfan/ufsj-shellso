@@ -5,15 +5,17 @@
 
 #define PROGNAME "ShellOS"
 #define MAJORVER 0
-#define MINORVER 6
+#define MINORVER 8
 
 #define MAXCMD 512
 #define freebuf(buff) \
 	memset(buff,'\0',MAXCMD * sizeof(char));
 
-#define CRED  "\x1b[31m"
+#define CRED "\x1b[31m"
 #define CGRN "\x1b[32m"
 #define CRST "\x1b[0m"
+#define BOLD "\033[1m"
+#define NORM "\033[22m"
 
 #include <stdio.h>
 #include <stdlib.h>

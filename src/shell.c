@@ -3,15 +3,27 @@
 #include <sys/wait.h>
 #include <fcntl.h>
 
+void killzumbies(void) {
+	for (pid_t pid = waitpid(-1,NULL,WNOHANG);
+		pid != 0 && pid != -1;
+		pid = waitpid(-1,NULL,WNOHANG)) {
+			#ifdef DEBUG
+			printf("PID %d: Headshot!\n", pid);
+			#endif
+		}
+}
+
 void commandLoop(void) {
 	char cmd[MAXCMD];
+	int status = 0;
 	Table *table;
 	
 	do {
 		currdir();
-		prompt();
+		prompt(status);
 
 		if (fgets(cmd,MAXCMD,stdin) && strcmp(cmd,"\n")) {
+
 			table = iniTable();
 			tkenizer(table,cmd);
 
@@ -20,14 +32,16 @@ void commandLoop(void) {
 			#endif
 
 			if (!strcmp(table->cmd[0]->argv[0],"fim")) {
+				killzumbies();
 				clrArg(table);
 				exit(EXIT_SUCCESS);
 			}
 			else if (!strcmp(table->cmd[0]->argv[0],"cd"))
-				cdcmd(table->cmd[0]);
+				status = cdcmd(table->cmd[0]);
 			else
-				pipeline(table);
+				status = warpPipe(table);
 
+			killzumbies();
 			clrArg(table);
 		}
 
@@ -75,10 +89,11 @@ void tkenizer(Table *table, char *line) {
 	insArg(table->cmd[i],NULL);
 }
 
-void pipeline(Table *table) {
+int warpPipe(Table *table) {
 	int fd[2];
-	pid_t pid;
 	int fdd = 0;
+	int wstatus = 1;
+	pid_t pid;
 
 	for (int i = 0; i < table->ncmd; i++) {
 
@@ -88,7 +103,6 @@ void pipeline(Table *table) {
 			perror(PROGNAME);
 			exit(1);
 		}
-
 		else if (pid == 0) {
 
 			if (table->cmd[i]->input)
@@ -100,27 +114,31 @@ void pipeline(Table *table) {
 			}
 
 			dup2(fdd,0);
-
 			if (i != (table->ncmd-1))
 				dup2(fd[1],1);
 
 			close(fd[0]);
-			if (execvp(table->cmd[i]->argv[0],table->cmd[i]->argv) == -1)
+
+			if (execvp(table->cmd[i]->argv[0],table->cmd[i]->argv) == -1) {
 				perror(PROGNAME);
-			exit(1);
+				exit(1);
+			}
+			exit(0);
 		}
 
 		else {
-			if (table->cmd[i]->and == 0)
-				wait(NULL);
-			else {
-				signal(SIGCHLD,SIG_IGN);
-				printf("PID: %d\n", pid);
+			if (table->cmd[i]->and == 0) {
+				waitpid(pid,&wstatus,0);
 			}
+			else
+				printf("PID %d: background\n", pid);
+
 			close(fd[1]);
 			fdd = fd[0];
 		}
 	}
+
+	return wstatus;
 }
 
 void toknview(Table *table) {
@@ -134,10 +152,14 @@ void toknview(Table *table) {
 
 int cdcmd(Command *cmd) {
 
-	if (cmd->argv[1] == NULL)
+	if (cmd->argv[1] == NULL) {
 		printf(PROGNAME": %s\n", strerror(ENOENT));
-	else if (chdir(cmd->argv[1]) != 0)
+		return 1;
+	}
+	else if (chdir(cmd->argv[1]) != 0) {
 		perror(PROGNAME);
-	
-	return 1;
+		return 1;
+	}
+
+	return 0;
 }

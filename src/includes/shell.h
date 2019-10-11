@@ -1,9 +1,10 @@
 #ifndef _SHELL_H
 #define _SHELL_H
 
+void killzumbies(void);
 void commandLoop(void);
 void tkenizer(Table *table, char *line);
-void pipeline(Table *table);
+int  warpPipe(Table *table);
 void toknview(Table *table);
 
 int cdcmd(Command *cmd);
