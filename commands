@@ -1,0 +1,8 @@
+ls -l
+ls -laR => arquivo
+
+wc -l <= arquivo &
+cat -n <= arquivo => arquivonumerado
+cat -n <= arquivo | wc -l => numerodelinhas
+cat -n <= arquivo | wc -l => numerodelinhas &
+fim

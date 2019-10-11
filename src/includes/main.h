@@ -23,6 +23,7 @@
 #include <errno.h>
 #include <error.h>
 
+#include "readfile.h"
 #include "prompt.h"
 #include "cmdtable.h"
 #include "shell.h"

@@ -45,14 +45,14 @@ void tkenizer(Table *table, char *line) {
 	while (token != NULL) {
 
 		if (strcmp(token,"<=") == 0) {
-			token = strtok(NULL, " \n"); //verificar depois se token == NULL
+			token = strtok(NULL, " \n");
 			table->cmd[i]->input = open(token, O_RDONLY);
 
 			if (table->cmd[i]->input == -1)
 				perror(PROGNAME);
 		}
 		else if (strcmp(token,"=>") == 0) {
-			token = strtok(NULL, " \n"); //verificar depois se token == NULL
+			token = strtok(NULL, " \n");
 			mode_t permission = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
 			table->cmd[i]->output = open(token, O_WRONLY | O_CREAT, permission);
 

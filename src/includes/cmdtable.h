@@ -7,6 +7,7 @@ typedef struct command_t {
 	char **argv;
 	int input;
 	int output;
+	int and;
 } Command;
 
 typedef struct Table_t {
