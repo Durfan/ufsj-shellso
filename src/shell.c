@@ -113,8 +113,10 @@ void pipeline(Table *table) {
 		else {
 			if (table->cmd[i]->and == 0)
 				wait(NULL);
-			else
+			else {
+				signal(SIGCHLD,SIG_IGN);
 				printf("PID: %d\n", pid);
+			}
 			close(fd[1]);
 			fdd = fd[0];
 		}
