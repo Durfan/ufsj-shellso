@@ -1,8 +1,7 @@
 #include "./includes/main.h"
 #include <limits.h>
 
-
-char *prompt(void) {
+void prompt(void) {
 	static char prompt[1024];
 	char username[LOGIN_NAME_MAX];
 	char hostname[HOST_NAME_MAX];
@@ -16,22 +15,20 @@ char *prompt(void) {
 	strcat(prompt,hostname);
 	strcat(prompt,"]$ ");
 
-	return prompt;
+	printf("\u2514\u2574%s", prompt);
 }
 
-char *currdir(void) {
+void currdir(void) {
 	static char cwd[PATH_MAX];
-	if (getcwd(cwd, sizeof(cwd)) == NULL)
-		return NULL;
-	return cwd;
+	if (getcwd(cwd,sizeof(cwd)) == NULL)
+		return;
+
+	printf("\u250C\u2574%s\n", cwd);
 }
 
 void initshell(void) {
 	system("clear");
-	printf("  _____ _    _ ______ _      _      ____   _____    ___  __\n");
-	printf(" / ____| |  | |  ____| |    | |    / __ \\ / ____|  / _ \\/_ |\n");
-	printf("| (___ | |__| | |__  | |    | |   | |  | | (___   | | | || | __ _\n");
-	printf(" \\___ \\|  __  |  __| | |    | |   | |  | |\\___ \\  | | | || |/ _` |\n");
-	printf(" ____) | |  | | |____| |____| |___| |__| |____) | | |_| || | (_| |\n");
-	printf("|_____/|_|  |_|______|______|______\\____/|_____/   \\___(_)_|\\__,_|\n\n");                                                
+	printf(CGRN"%s/SOTP1", PROGNAME);
+	printf(" %d.", MAJORVER);
+	printf("%dv\n"CRST, MINORVER);
 }

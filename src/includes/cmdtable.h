@@ -1,24 +1,25 @@
 #ifndef _CMDTABLE_H
 #define _CMDTABLE_H
 
-typedef struct cmd_t {
+typedef struct command_t {
 	int buffer;
-	int narg;
-	char **args;
+	int argc;
+	char **argv;
 	int input;
 	int output;
-} CMD;
+	int and;
+} Command;
 
-typedef struct cmdtable_t {
+typedef struct Table_t {
 	int buffer;
 	int ncmd;
-	CMD **cmds;
-} CMDtable;
+	Command **cmd;
+} Table;
 
-CMDtable *iniTable(void);
-CMD *iniCMD(void);
-void insCmd(CMDtable *table);
-void insArg(CMD *cmd, char *arg);
-void clrArg(CMDtable *table);
+Table *iniTable(void);
+Command *iniCMD(void);
+void insCmd(Table *table);
+void insArg(Command *cmd, char *arg);
+void clrArg(Table *table);
 
 #endif // _CMDTABLE_H
