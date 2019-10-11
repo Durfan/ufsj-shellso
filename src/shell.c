@@ -21,7 +21,6 @@ void commandLoop(void) {
 
 			if (!strcmp(table->cmd[0]->argv[0],"fim")) {
 				clrArg(table);
-				printf("Saindo...\n");
 				exit(EXIT_SUCCESS);
 			}
 			else if (!strcmp(table->cmd[0]->argv[0],"cd"))
