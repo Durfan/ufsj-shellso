@@ -58,6 +58,10 @@ void tkenizer(Table *table, char *line) {
 			if (table->cmd[i]->input == -1)
 				perror(PROGNAME);
 		}
+		else if (strcmp(token,"&") == 0) {
+			token = strtok(NULL, " \n");
+			table->cmd[i]->and = 1;
+		}
 		else if (strcmp(token,"|") == 0) {
 			insArg(table->cmd[i++],NULL);
 			insCmd(table);
@@ -90,8 +94,10 @@ void pipeline(Table *table) {
 			if (table->cmd[i]->input)
 				fdd = table->cmd[i]->input;
 
-			if (table->cmd[i]->output)
+			if (table->cmd[i]->output) {
 				dup2(table->cmd[i]->output,1);
+				close(fd[1]);
+			}
 
 			dup2(fdd,0);
 
@@ -105,7 +111,10 @@ void pipeline(Table *table) {
 		}
 
 		else {
-			wait(NULL);
+			if (table->cmd[i]->and == 0)
+				wait(NULL);
+			else
+				printf("PID: %d\n", pid);
 			close(fd[1]);
 			fdd = fd[0];
 		}
