@@ -55,9 +55,6 @@ void tkenizer(Table *table, char *line) {
 		else if (strcmp(token,"&") == 0) {
 			token = strtok(NULL, " \n");
 			table->cmd[i]->and = 1;
-
-			if (table->cmd[i]->input == -1)
-				perror(PROGNAME);
 		}
 		else if (strcmp(token,"|") == 0) {
 			insArg(table->cmd[i++],NULL);
