@@ -1,4 +1,4 @@
-# Sistemas Operacionais - TP 1 / :shell: shellso
+# Sistemas Operacionais :shell: shellso
 
 ```console
 ShellOS/SOTP1 0.8v
