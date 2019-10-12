@@ -17,7 +17,7 @@ void commandLoop(void) {
 	char cmd[MAXCMD];
 	int status = 0;
 	Table *table;
-	
+
 	do {
 		currdir();
 		prompt(status);
