@@ -1,17 +1,4 @@
 #include "./includes/main.h"
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <fcntl.h>
-
-void killzumbies(void) {
-	for (pid_t pid = waitpid(-1,NULL,WNOHANG);
-		pid != 0 && pid != -1;
-		pid = waitpid(-1,NULL,WNOHANG)) {
-			#ifdef DEBUG
-			printf("PID %d: Headshot!\n", pid);
-			#endif
-		}
-}
 
 void commandLoop(void) {
 	char cmd[MAXCMD];

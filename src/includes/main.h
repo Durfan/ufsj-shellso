@@ -22,6 +22,11 @@
 #include <unistd.h>
 #include <string.h>
 
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <fcntl.h>
+
 #include <errno.h>
 #include <error.h>
 
@@ -29,5 +34,6 @@
 #include "prompt.h"
 #include "cmdtable.h"
 #include "shell.h"
+#include "sinais.h"
 
 #endif // _MAIN_H

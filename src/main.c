@@ -2,6 +2,10 @@
 
 int main(int argc, char **argv) {
 
+	#ifdef DEBUG
+	sinais();
+	#endif
+
 	if (argc == 1) {
 		system("clear");
 		initshell();

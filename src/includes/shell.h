@@ -1,7 +1,6 @@
 #ifndef _SHELL_H
 #define _SHELL_H
 
-void killzumbies(void);
 void commandLoop(void);
 void tkenizer(Table *table, char *line);
 int  warpPipe(Table *table);
