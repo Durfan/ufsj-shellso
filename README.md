@@ -1,6 +1,8 @@
 # Sistemas Operacionais :shell: shellso
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/6a0df7209849450b89c159d31af6315b)](https://www.codacy.com/manual/Durfan/ufsj-shellso?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Durfan/ufsj-shellso&amp;utm_campaign=Badge_Grade)
 
+Trabalho prático de implementação de um Interpretador de comandos para a disciplina de Sistemas Operacionais/UFSJ.
+
 ```console
 ShellOS/SOTP1 0.8v
 ► $ls -l
