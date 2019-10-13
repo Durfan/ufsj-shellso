@@ -69,4 +69,4 @@ PID 13454: Headshot!
 ## Acknowledgments
 
 * [GenericMakefile](https://github.com/mbcrawfo/GenericMakefile) - versionamento e debug em tempo de compilação.
-* [Writing Your Own Shell](https://www.cs.purdue.edu/homes/grr/SystemsProgrammingBook/Book/Chapter5-WritingYourOwnShell.pdf) - You really understand something until you program it.  
+* [Writing Your Own Shell](https://www.cs.purdue.edu/homes/grr/SystemsProgrammingBook/Book/Chapter5-WritingYourOwnShell.pdf) - *"You really understand something until you program it." --GRR*
