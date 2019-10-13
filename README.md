@@ -26,6 +26,19 @@ ShellOS/SOTP1 0.8v
 ``` bash
 ./shellso [commands file]
 ```
+### Formato de arquivo
+
+Um comando por linha, exemplo:
+
+``` text
+ls -l
+ls -laR => arquivo
+wc -l <= arquivo &
+cat -n <= arquivo => arquivonumerado
+cat -n <= arquivo | wc -l => numerodelinhas
+cat -n <= arquivo | wc -l => numerodelinhas &
+fim
+```
 
 ### Exemplo de saída
 
