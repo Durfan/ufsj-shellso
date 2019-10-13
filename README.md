@@ -3,6 +3,32 @@
 
 Trabalho prático de implementação de um Interpretador de comandos para a disciplina de Sistemas Operacionais/UFSJ.
 
+## Instalação e funcionamento
+
+``` bash
+make
+make debug # binario com debug
+make clean # remover binario
+./shellso # symlink para o binario, inicia o shell
+./shellso [commands file] # processamento de comandos a partir de um arquivo
+```
+
+### Comando de finalização
+
+``` bash
+ShellOS/SOTP1 0.8v
+┌/currentpath/
+└[user@host]$ fim # ou CTRL+D
+```
+
+## Arquivo de Comandos
+
+``` bash
+./shellso [commands file]
+```
+
+### Exemplo de saída
+
 ```console
 ShellOS/SOTP1 0.8v
 ► $ls -l
