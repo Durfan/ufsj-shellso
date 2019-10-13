@@ -15,7 +15,7 @@ make clean # remover binario
 
 ### Comando de finalização
 
-``` bash
+``` console
 ShellOS/SOTP1 0.8v
 ┌/currentpath/
 └[user@host]$ fim # ou CTRL+D
